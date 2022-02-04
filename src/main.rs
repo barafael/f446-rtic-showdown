@@ -26,6 +26,7 @@ mod app {
     use heapless::String;
     use rtic_monotonic::Monotonic;
     use stm32f4xx_hal::delay::Delay;
+    use stm32f4xx_hal::gpio::gpioa::PA8;
     use stm32f4xx_hal::{
         fugit::MonoTimer,
         gpio::{gpioa::PA5, gpioc::PC13, Edge, ExtiPin, Input, Output, PullUp, PushPull},
@@ -49,6 +50,7 @@ mod app {
         tx: Tx<USART1, u8>,
         delay: Delay,
         led: PA5<Output<PushPull>>,
+        exti_bench: PA8<Output<PushPull>>,
     }
 
     #[init]
@@ -60,6 +62,7 @@ mod app {
         // Set up the LED.
         let gpioa = ctx.device.GPIOA.split();
         let led = gpioa.pa5.into_push_pull_output();
+        let exti_bench = gpioa.pa8.into_push_pull_output();
 
         // Set up the button.
         let gpioc = ctx.device.GPIOC.split();
@@ -86,6 +89,7 @@ mod app {
                 tx,
                 delay,
                 led,
+                exti_bench,
             },
             init::Monotonics(mono),
         )
@@ -103,8 +107,9 @@ mod app {
         }
     }
 
-    #[task(binds = EXTI15_10, local = [btn])]
+    #[task(binds = EXTI15_10, local = [btn, exti_bench])]
     fn on_exti(ctx: on_exti::Context) {
+        ctx.local.exti_bench.set_high();
         ctx.local.btn.clear_interrupt_pending_bit();
 
         OVERRIDE.store(!ctx.local.btn.is_high(), Ordering::Relaxed);
@@ -113,6 +118,7 @@ mod app {
             ctx.local.btn.is_high(),
         ))
         .ok();
+        ctx.local.exti_bench.set_low();
     }
 
     #[task(local = [tx], capacity = 8)]
