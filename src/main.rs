@@ -35,7 +35,7 @@ mod app {
     };
 
     #[monotonic(binds = TIM5, default = true)]
-    type Tonic = MonoTimer<pac::TIM5, 48_000_000>;
+    type Tonic = MonoTimer<pac::TIM5, 45_000_000>;
 
     static BTN_COUNT: AtomicUsize = AtomicUsize::new(0);
     static OVERRIDE: AtomicBool = AtomicBool::new(false);
@@ -55,7 +55,7 @@ mod app {
     fn init(mut ctx: init::Context) -> (Shared, Local, init::Monotonics) {
         // Set up the system clock.
         let rcc = ctx.device.RCC.constrain();
-        let clocks = rcc.cfgr.sysclk(48.mhz()).freeze();
+        let clocks = rcc.cfgr.sysclk(180.mhz()).freeze();
 
         // Set up the LED.
         let gpioa = ctx.device.GPIOA.split();
