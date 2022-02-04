@@ -75,7 +75,7 @@ mod app {
         // Set up serial.
         let tx_pin = gpioa.pa9.into_alternate();
         let tx: Tx<USART1, u8> =
-            Serial::tx(ctx.device.USART1, tx_pin, 9600.bps(), &clocks).unwrap();
+            Serial::tx(ctx.device.USART1, tx_pin, 115200.bps(), &clocks).unwrap();
 
         // Set up monotonic timer.
         let mono = ctx.device.TIM5.monotonic(&clocks);
